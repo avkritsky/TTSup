@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from src.backend.db import session
 
 
 router = APIRouter(
@@ -9,6 +11,8 @@ router = APIRouter(
 )
 
 
-@router.post('')
-async def create_user():
+@router.post('/')
+async def create_user(
+        db: session.AsyncSession = Depends(session.new_session),
+):
     pass
