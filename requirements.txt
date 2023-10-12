@@ -4,3 +4,9 @@ uvicorn==0.23.2
 
 # ENV config creater
 python-dotenv==1.0.0
+
+# Databases
+    # engine
+asyncpg==0.28.0
+    # ORM
+sqlalchemy[asyncio]==2.0.21
