@@ -13,6 +13,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
         description=config.PROJECT_DESCRIPTION,
         version=config.PROJECT_VERSION,
+        title=config.PROJECT_TITLE,
     )
     return new_app
 
