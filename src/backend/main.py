@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.core import config
+from src.backend.core import config
 
 
 async def lifespan(api: FastAPI):
