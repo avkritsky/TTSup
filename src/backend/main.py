@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from src.backend.apis import root_api
@@ -5,6 +7,7 @@ from src.backend.core import config
 from src.backend.db import session
 
 
+@asynccontextmanager
 async def lifespan(api: FastAPI):
     print('Start APP')
     await session.create_tables()

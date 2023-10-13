@@ -9,7 +9,13 @@ python-dotenv==1.0.0
     # engine
 asyncpg==0.28.0
     # ORM
-sqlalchemy[asyncio]==2.0.21
+sqlalchemy[asyncio]==2.0.22
 
 # security
 passlib[bcrypt]==1.7.4
+
+# tests
+pytest==7.4.2
+pytest-asyncio==0.21.1
+    # for test client FastAPI
+httpx==0.25.0
