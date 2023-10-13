@@ -15,12 +15,16 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     login: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String(50), nullable=False)
+    password: Mapped[str] = mapped_column(String(100), nullable=False)
     fullname: Mapped[str] = mapped_column(String(100))
     group: Mapped[list[str]] = mapped_column(
         String(10),
-        CheckConstraint("group in ('admin', 'user', 'support')"),
+        CheckConstraint('"group" in ' + "('admin', 'user', 'support')"),
         nullable=False,
     )
     # for telegram chat ID (send answer for user in telegram)
-    chat_id: Mapped[str] = mapped_column(String(30), default=None)
+    chat_id: Mapped[str] = mapped_column(
+        String(30),
+        default=None,
+        nullable=True,
+    )
