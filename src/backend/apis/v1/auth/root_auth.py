@@ -24,7 +24,7 @@ router = APIRouter(
 )
 async def create_user(
         source: schemas_auth.NewUser,
-        db: session.AsyncSession = Depends(session.new_session),
+        db: session.AsyncSession = Depends(session.database.new_session),
 ):
     res = await repository.users.create_new_user(source, db)
     return res

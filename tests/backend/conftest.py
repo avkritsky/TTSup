@@ -5,24 +5,24 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.backend.main import app
-from src.backend.db.session import engine
-from src.backend.db.models import User, Base
-
-
-def rename_models():
-    bases = Base.metadata.tables
-    for key, val in bases.items():
-        bases.pop(key)
-        val.__tablename__ = f'test_{val.__tablename__}'
-        bases[f'test_{key}'] = val
+from src.backend.db.session import database
+from src.backend.db.models import Base
+from src.backend.core import config
 
 
 @asynccontextmanager
 async def tables_for_test():
-    rename_models()
+    engine = await database.get_engine()
+    if config.IS_PROD is True:
+        raise RuntimeError('TEST RUNE ON PROD ENV!!!')
     async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.drop_all)
         await connection.run_sync(Base.metadata.create_all)
-        yield
+        await connection.commit()
+
+    yield
+
+    async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.drop_all)
 
 

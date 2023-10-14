@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path='.env')
 
+IS_PROD = True if os.getenv("APP_ENV") == 'prod' else False
+
 # PROJECT SETTINGS
 PROJECT_TITLE = 'TTS'
 PROJECT_DESCRIPTION = 'Telegram technical support by A.V.Kritsky'

@@ -4,13 +4,14 @@ from fastapi import FastAPI
 
 from src.backend.apis import root_api
 from src.backend.core import config
-from src.backend.db import session
+from src.backend.db.session import database
 
 
 @asynccontextmanager
 async def lifespan(api: FastAPI):
     print('Start APP')
-    await session.create_tables()
+    await database.create_connection()
+    await database.create_tables()
     yield
     print('Exit APP')
 

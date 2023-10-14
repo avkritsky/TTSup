@@ -5,13 +5,15 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
+from src.backend.core import config
+
 
 class Base(DeclarativeBase):
     pass
 
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'user' if config.IS_PROD else 'user_test'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     login: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
