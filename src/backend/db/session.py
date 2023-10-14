@@ -18,7 +18,6 @@ class DBSession:
     base: Type[Base]
     engine: AsyncEngine | None
     maker: async_sessionmaker | None
-    _instance = None
 
     def __init__(
             self,
@@ -27,7 +26,7 @@ class DBSession:
             *,
             echo: bool = True,
             autoflush: bool = False,
-            expire_on_commit: bool = False,
+            expire_on_commit: bool = True,
     ):
         self.url = url
         self.echo = echo
@@ -38,15 +37,8 @@ class DBSession:
         self.maker = None
         self.engine = create_async_engine(self.url, echo=self.echo)
 
-    async def create_connection(self):
-        pass
-        # self.maker = async_sessionmaker(
-        #     bind=self.engine,
-        #     autoflush=self.autoflush,
-        #     expire_on_commit=self.expire_on_commit,
-        # )
-
     async def get_engine(self):
+        """Create new(!) engine. Use for tests"""
         return create_async_engine(self.url, echo=self.echo)
 
     async def new_session(self) -> Generator:
@@ -57,9 +49,9 @@ class DBSession:
             await self.engine.dispose()
 
     async def create_tables(self):
-        engine = await self.get_engine()
-        async with engine.begin() as connection:
-            await connection.run_sync(Base.metadata.create_all)
+        """Create all tables in Metadata"""
+        async with self.engine.begin() as session:
+            await session.run_sync(Base.metadata.create_all)
 
 
 database = DBSession(url=config.POSTGRES_URL, base=Base)

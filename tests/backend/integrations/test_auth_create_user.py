@@ -58,4 +58,5 @@ async def test_error_create_user_with_same_login(client):
 
         response = app.post('/v1/auth', content=json.dumps(new_user))
 
+        # can't create user with same login
         assert response.status_code == 409

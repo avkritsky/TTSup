@@ -10,7 +10,6 @@ from src.backend.db.session import database
 @asynccontextmanager
 async def lifespan(api: FastAPI):
     print('Start APP')
-    await database.create_connection()
     await database.create_tables()
     yield
     print('Exit APP')
