@@ -52,12 +52,14 @@ class DBSession:
         """Function for FastAPI dependency injection"""
         if self.maker is None:
             await self.create_connection()
+
         async with self.maker() as session:
             session: AsyncSession
             yield session
 
     async def create_tables(self):
-        async with self.engine.begin() as connection:
+        engine = await self.get_engine()
+        async with engine.begin() as connection:
             await connection.run_sync(Base.metadata.create_all)
 
 
