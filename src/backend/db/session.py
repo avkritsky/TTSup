@@ -36,26 +36,25 @@ class DBSession:
         self.base = base
         self.engine = None
         self.maker = None
+        self.engine = create_async_engine(self.url, echo=self.echo)
 
     async def create_connection(self):
-        self.engine = create_async_engine(self.url, echo=self.echo)
-        self.maker = async_sessionmaker(
-            bind=self.engine,
-            autoflush=self.autoflush,
-            expire_on_commit=self.expire_on_commit,
-        )
+        pass
+        # self.maker = async_sessionmaker(
+        #     bind=self.engine,
+        #     autoflush=self.autoflush,
+        #     expire_on_commit=self.expire_on_commit,
+        # )
 
     async def get_engine(self):
         return create_async_engine(self.url, echo=self.echo)
 
     async def new_session(self) -> Generator:
         """Function for FastAPI dependency injection"""
-        if self.maker is None:
-            await self.create_connection()
-
-        async with self.maker() as session:
+        async with AsyncSession(bind=self.engine) as session:
             session: AsyncSession
             yield session
+            await self.engine.dispose()
 
     async def create_tables(self):
         engine = await self.get_engine()
