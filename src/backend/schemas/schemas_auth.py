@@ -11,6 +11,7 @@ class NewUser(BaseModel):
 class NewUserResult(BaseModel):
     id: int
     login: str
+    group: str
 
 
 class ErrorNewUser(BaseModel):

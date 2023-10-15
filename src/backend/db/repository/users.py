@@ -34,4 +34,8 @@ async def create_new_user(
         )
     await db.refresh(user)
 
-    return schemas_auth.NewUserResult(id=user.id, login=user.login)
+    return schemas_auth.NewUserResult(
+        id=user.id,
+        login=user.login,
+        group=user.group,
+    )

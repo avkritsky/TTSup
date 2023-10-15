@@ -1,3 +1,5 @@
+from fastapi import Response
+
 from datetime import timedelta, datetime
 from typing import TypeAlias
 
@@ -152,3 +154,27 @@ async def refresh_user_tokens(
         )
 
     return await get_new_tokens(decoded_token, session)
+
+
+def set_tokens_in_response(
+        response: Response,
+        access_token: AccessToken,
+        refresh_token: RefreshToken,
+):
+    """Set tokens in response cookies"""
+    response.set_cookie(
+        key='access_token',
+        value=access_token,
+        expires=config.JWT_TTL_ACCESS,
+        httponly=True,
+        samesite=None,
+        secure=True,
+    )
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        expires=config.JWT_TTL_REFRESH,
+        httponly=True,
+        samesite=None,
+        secure=True,
+    )
