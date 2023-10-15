@@ -10,9 +10,14 @@ python-dotenv==1.0.0
 asyncpg==0.28.0
     # ORM
 sqlalchemy[asyncio]==2.0.22
+    # redis
+redis==5.0.1
 
 # security
+    # for hash passwords
 passlib[bcrypt]==1.7.4
+    # jwt
+python-jose==3.3.0
 
 # tests
 pytest==7.4.2
