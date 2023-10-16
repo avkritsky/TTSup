@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.backend.main import app
-from src.backend.db.session import database
+from src.backend.db.sessions import database
 from src.backend.db.models import Base
 from src.backend.core import config
 

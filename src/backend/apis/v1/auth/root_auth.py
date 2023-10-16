@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
+from redis.asyncio import Redis
 
-from src.backend.db import session, repository
-from src.backend.db.redis import session as redis
+from src.backend.db import sessions, repository
+from src.backend.db import redis, models
 from src.backend.schemas import schemas_auth
 from src.backend.core import security
 
@@ -27,8 +28,8 @@ router = APIRouter(
 )
 async def create_user(
         source: schemas_auth.NewUser,
-        db: session.AsyncSession = Depends(session.database.new_session),
-        redis_sess: redis.redis.Redis = Depends(redis.new_jwt_redis_session)
+        db: sessions.AsyncSession = Depends(sessions.database.new_session),
+        redis_sess: Redis = Depends(redis.sessions.new_jwt_redis_session),
 ):
     res = await repository.users.create_new_user(source, db)
 
@@ -42,6 +43,15 @@ async def create_user(
         content=res.model_dump(),
     )
 
+    print(access_token)
+
     security.set_tokens_in_response(response, access_token, refresh_token)
 
     return res
+
+
+@router.post('/auth_test')
+async def auth_test_route(
+        user: models.User = Depends(security.get_current_user),
+):
+    return {'response': f'{user.login}'}

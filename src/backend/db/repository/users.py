@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -39,3 +40,16 @@ async def create_new_user(
         login=user.login,
         group=user.group,
     )
+
+
+async def get_user_by_login(login: str, session: AsyncSession) -> User:
+    """Load user from DB by login"""
+    query = select(
+        User
+    ).where(
+        User.login == login,
+    )
+
+    data = await session.scalar(query)
+
+    return data

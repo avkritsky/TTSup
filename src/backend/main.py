@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from src.backend.apis import root_api
 from src.backend.core import config
-from src.backend.db.session import database
+from src.backend.db.sessions import database
 
 
 @asynccontextmanager

@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from src.backend.db.session import database
+from src.backend.db.sessions import database
 
 
 @pytest.mark.asyncio
