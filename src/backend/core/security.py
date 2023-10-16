@@ -1,5 +1,5 @@
 from fastapi import Response, Depends
-from fastapi.security import APIKeyCookie
+from fastapi.security import OAuth2PasswordBearer
 
 from datetime import timedelta, datetime
 from typing import TypeAlias
@@ -10,7 +10,7 @@ from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.core import config
-from src.backend.db import redis, repository, sessions
+from src.backend.db import redis, repository, sessions, models
 
 pwd_context = CryptContext(
     schemes=['bcrypt'],
@@ -27,6 +27,24 @@ def verify_password(
 
 def get_encode_password(password: str) -> str:
     return pwd_context.hash(password)
+
+
+async def authenticate_user(
+        login: str,
+        password: str,
+        session: AsyncSession,
+) -> models.User:
+    exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    user = await repository.users.get_user_by_login(login, session)
+
+    if user is None:
+        raise exception
+
+    if not verify_password(password, user.password):
+        raise exception
+
+    return user
 
 
 def create_token(
@@ -185,7 +203,7 @@ def set_tokens_in_response(
     )
 
 
-auth_scheme = APIKeyCookie(
+auth_scheme = APIKeyHeader(
     name='access_token',
     auto_error=False,
 )
