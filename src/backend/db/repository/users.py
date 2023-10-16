@@ -11,7 +11,7 @@ from src.backend.schemas import schemas_auth
 async def create_new_user(
         source: schemas_auth.NewUser,
         db: AsyncSession,
-) -> schemas_auth.NewUserResult:
+) -> dict:
     user = User()
 
     user.login = source.login
@@ -35,11 +35,7 @@ async def create_new_user(
         )
     await db.refresh(user)
 
-    return schemas_auth.NewUserResult(
-        id=user.id,
-        login=user.login,
-        group=user.group,
-    )
+    return user.jwt_model
 
 
 async def get_user_by_login(login: str, session: AsyncSession) -> User:

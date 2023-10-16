@@ -30,3 +30,12 @@ class User(Base):
         default=None,
         nullable=True,
     )
+
+    @property
+    def jwt_model(self) -> dict:
+        res = {
+            'id': self.id,
+            'login': self.login,
+            'group': self.group,
+        }
+        return res

@@ -12,6 +12,7 @@ class NewUserResult(BaseModel):
     id: int
     login: str
     group: str
+    access_token: str
 
 
 class ErrorNewUser(BaseModel):

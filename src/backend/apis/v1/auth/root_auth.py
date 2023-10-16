@@ -36,18 +36,22 @@ async def create_user(
     res = await repository.users.create_new_user(source, session)
 
     access_token, refresh_token = await security.get_new_tokens(
-        decoded_token=res.model_dump(),
+        decoded_token=res,
         session=redis_sess,
     )
 
     response = JSONResponse(
         status_code=status.HTTP_200_OK,
-        content=res.model_dump(),
+        content={
+            **res,
+            'access_token': access_token,
+            # 'refresh_token': refresh_token,  # ??? need or ... ???
+        },
     )
 
     security.set_tokens_in_response(response, access_token, refresh_token)
 
-    return res
+    return response
 
 
 @router.post(
@@ -56,8 +60,29 @@ async def create_user(
 async def login_user(
         form_data: OAuth2PasswordRequestForm = Depends(),
         session: AsyncSession = Depends(sessions.database.new_session),
+        redis_sess: Redis = Depends(redis.sessions.new_jwt_redis_session),
 ):
-    ...
+    user = await security.authenticate_user(
+        form_data.username,
+        form_data.password,
+        session,
+    )
+
+    access_token, refresh_token = await security.get_new_tokens(
+        decoded_token=user.jwt_model,
+        session=redis_sess,
+    )
+
+    response = JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            **user.jwt_model,
+            'access_token': access_token,
+            # 'refresh_token': refresh_token,  # ??? need or ... ???
+        },
+    )
+
+    return response
 
 
 @router.post('/auth_test')

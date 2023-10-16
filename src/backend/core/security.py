@@ -203,9 +203,8 @@ def set_tokens_in_response(
     )
 
 
-auth_scheme = APIKeyHeader(
-    name='access_token',
-    auto_error=False,
+auth_scheme = OAuth2PasswordBearer(
+    tokenUrl='/v1/auth/token'
 )
 
 

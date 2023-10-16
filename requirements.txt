@@ -18,6 +18,8 @@ redis==5.0.1
 passlib[bcrypt]==1.7.4
     # jwt
 python-jose==3.3.0
+    # for Form-data
+python-multipart==0.0.6
 
 # tests
 pytest==7.4.2
