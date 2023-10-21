@@ -46,7 +46,8 @@ class DBSession:
         async with AsyncSession(bind=self.engine) as session:
             session: AsyncSession
             yield session
-            await self.engine.dispose()
+            if not config.IS_PROD:
+                await self.engine.dispose()
 
     async def create_tables(self):
         """Create all tables in Metadata"""

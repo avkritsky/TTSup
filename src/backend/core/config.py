@@ -31,6 +31,11 @@ JWT_TTL_REFRESH = timedelta(days=7)
 JWT_ALGORITHM = 'HS256'
 
 # REDIS
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 REDIS_DB_FOR_JWT = 7
 REDIS_DB_FOR_CACHE = 8
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+
+if __name__ == '__main__':
+    print(POSTGRES_URL)
