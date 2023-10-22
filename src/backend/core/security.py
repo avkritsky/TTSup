@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.core import config
 from src.backend.db import redis, repository, sessions, models
+from src.backend.schemas import schemas_auth
 
 pwd_context = CryptContext(
     schemes=['bcrypt'],
@@ -121,7 +122,7 @@ async def load_token_from_redis(
     return redis_data
 
 
-async def is_token_valid(
+def is_token_valid(
         token: RefreshToken,
         redis_data: dict,
 ) -> bool:
@@ -164,7 +165,7 @@ async def get_new_tokens(
 async def refresh_user_tokens(
         refresh_token: RefreshToken,
         session: redis.repository.Redis,
-) -> tuple[AccessToken, RefreshToken]:
+) -> dict:
     """Re-create user tokens and save is in redis by valid refresh token"""
     decoded_token = decode_token(refresh_token)
 
@@ -176,7 +177,15 @@ async def refresh_user_tokens(
             detail='Invalid token!',
         )
 
-    return await get_new_tokens(decoded_token, session)
+    access_token, refresh_token = await get_new_tokens(decoded_token, session)
+
+    data = {
+        **decoded_token,
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+    }
+
+    return data
 
 
 def set_tokens_in_response(

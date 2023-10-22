@@ -52,11 +52,13 @@ async def create_test_users() -> tuple:
 
         user_dict = {
             'login': 'user1',
+            'group': 'user',
             'password': 'password',
         }
 
         support_dict = {
             'login': 'support1',
+            'group': 'support',
             'password': 'password',
         }
 

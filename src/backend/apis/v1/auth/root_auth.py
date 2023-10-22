@@ -20,13 +20,13 @@ router = APIRouter(
 
 @router.post(
     '/register',
-    response_model=schemas_auth.NewUserResult,
+    response_model=schemas_auth.UserAuthData,
     responses={
         '409': {
             'description': 'Login already used (may be)',
             'model': schemas_auth.ErrorNewUser,
         },
-    }
+    },
 )
 async def create_user(
         source: schemas_auth.NewUser,
@@ -45,7 +45,7 @@ async def create_user(
         content={
             **res,
             'access_token': access_token,
-            # 'refresh_token': refresh_token,  # ??? need or ... ???
+            'refresh_token': refresh_token,  # ??? need or ... ???
         },
     )
 
@@ -56,6 +56,12 @@ async def create_user(
 
 @router.post(
     '/token',
+    response_model=schemas_auth.UserAuthData,
+    responses={
+        '401': {
+            'description': 'UNAUTHORIZED',
+        },
+    },
 )
 async def login_user(
         form_data: OAuth2PasswordRequestForm = Depends(),
@@ -78,15 +84,29 @@ async def login_user(
         content={
             **user.jwt_model,
             'access_token': access_token,
-            # 'refresh_token': refresh_token,  # ??? need or ... ???
+            'refresh_token': refresh_token,  # ??? need or ... ???
         },
     )
 
     return response
 
 
-@router.post('/auth_test')
-async def auth_test_route(
-        user: models.User = Depends(security.get_current_user),
+@router.get(
+    '/refresh',
+    response_model=schemas_auth.UserAuthData,
+    responses={
+        '401': {
+            'description': 'Refresh token was expired',
+        },
+    },
+)
+async def refresh_user_tokens(
+        refresh_token: str,
+        redis_sess: Redis = Depends(redis.sessions.new_jwt_redis_session),
 ):
-    return {'response': f'{user.login}'}
+    """Create new tokens for user from users refresh token"""
+    data = await security.refresh_user_tokens(refresh_token, redis_sess)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=data,
+    )

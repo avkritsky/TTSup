@@ -8,11 +8,12 @@ class NewUser(BaseModel):
     fullname: str | None = None
 
 
-class NewUserResult(BaseModel):
+class UserAuthData(BaseModel):
     id: int
     login: str
     group: str
     access_token: str
+    refresh_token: str
 
 
 class ErrorNewUser(BaseModel):
