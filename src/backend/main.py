@@ -30,6 +30,7 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
+
 @app.get('/healthy')
 def health_check():
     return {'healthy': True}

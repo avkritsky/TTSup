@@ -5,7 +5,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.db import sessions, repository
-from src.backend.db import redis, models
+from src.backend.db import redis
 from src.backend.schemas import schemas_auth
 from src.backend.core import security
 
