@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.core import config
 from src.backend.db import redis, repository, sessions, models
-from src.backend.schemas import schemas_auth
+
 
 pwd_context = CryptContext(
     schemes=['bcrypt'],
@@ -40,9 +40,11 @@ async def authenticate_user(
     user = await repository.users.get_user_by_login(login, session)
 
     if user is None:
+        exception.detail = 'Invalid login!'
         raise exception
 
     if not verify_password(password, user.password):
+        exception.detail = 'Invalid password!'
         raise exception
 
     return user
@@ -225,8 +227,6 @@ async def get_current_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
     )
-
-    print(token)
 
     try:
         payload = jwt.decode(
