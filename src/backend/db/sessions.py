@@ -34,14 +34,20 @@ class DBSession:
         self.expire_on_commit = expire_on_commit
         self.base = base
         self.engine = None
-        self.maker = None
         self.engine = create_async_engine(self.url, echo=self.echo)
+        self.maker = async_sessionmaker(bind=self.engine)
 
     async def get_engine(self):
         """Create new(!) engine. Use for tests"""
         return create_async_engine(self.url, echo=self.echo)
 
     async def new_session(self) -> Generator[AsyncSession, None, None]:
+        """Function for FastAPI dependency injection"""
+        async with AsyncSession(bind=self.engine) as session:
+            session: AsyncSession
+            yield session
+
+    async def new_sess_maker(self) -> Generator[AsyncSession, None, None]:
         """Function for FastAPI dependency injection"""
         async with AsyncSession(bind=self.engine) as session:
             session: AsyncSession
@@ -64,6 +70,25 @@ class DBSession:
             session: AsyncSession
 
             yield session
+
+        await self.engine.dispose()
+
+    async def test_new_sess_maker(self) -> Generator[AsyncSession, None, None]:
+        """Function for overriding `new_sess_maker` dependency"""
+        engine = create_async_engine(self.url, echo=self.echo)
+
+        # when tests with one engine, I got Runtime errors . Find in SO answer
+        # for same problem:
+        # This happens because the asyncio event loop when using pytest-asyncio
+        # is created anew for each test execution and the client caches
+        # the first event loop it finds within each AIOHttpNode instance.
+        # To work-around this you'll need to create a new instance of
+        # AsyncElasticsearch for each test execution rather than using a
+        # single global instance. Hope this helps!
+
+        maker = async_sessionmaker(bind=engine)
+
+        yield maker
 
         await self.engine.dispose()
 

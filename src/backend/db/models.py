@@ -80,12 +80,23 @@ class Ticket(Base):
             '"state" in ' + "('new', 'await user', 'await support', 'closed')"
         ),
         nullable=False,
+        default='new',
     )
+
+    text: Mapped[str] = mapped_column(String(255), nullable=False)
 
     dialogs: Mapped[list["TicketDialog"]] = relationship(
         back_populates="ticket",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def jwt_model(self) -> dict:
+        res = {
+            'id': self.id,
+            'author_login': self.author_login,
+        }
+        return res
 
 
 class TicketDialog(Base):

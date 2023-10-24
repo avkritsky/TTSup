@@ -1,14 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
-class NewUser(BaseModel):
+class NewUserRequest(BaseModel):
     login: str
     password: str
     chat_id: str | None = None
     fullname: str | None = None
 
 
-class UserAuthData(BaseModel):
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     login: str
     group: str
@@ -16,6 +18,6 @@ class UserAuthData(BaseModel):
     refresh_token: str
 
 
-class ErrorNewUser(BaseModel):
+class NewUserError(BaseModel):
     error: str
     login: str

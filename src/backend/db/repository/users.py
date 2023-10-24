@@ -9,7 +9,7 @@ from src.backend.schemas import schemas_auth
 
 
 async def create_new_user(
-        source: schemas_auth.NewUser,
+        source: schemas_auth.NewUserRequest,
         db: AsyncSession,
 ) -> dict:
     user = User()

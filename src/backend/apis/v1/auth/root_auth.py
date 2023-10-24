@@ -20,16 +20,16 @@ router = APIRouter(
 
 @router.post(
     '/register',
-    response_model=schemas_auth.UserAuthData,
+    response_model=schemas_auth.UserResponse,
     responses={
         '409': {
             'description': 'Login already used (may be)',
-            'model': schemas_auth.ErrorNewUser,
+            'model': schemas_auth.NewUserError,
         },
     },
 )
 async def create_user(
-        source: schemas_auth.NewUser,
+        source: schemas_auth.NewUserRequest,
         session: AsyncSession = Depends(sessions.database.new_session),
         redis_sess: Redis = Depends(redis.sessions.new_jwt_redis_session),
 ):
@@ -56,7 +56,7 @@ async def create_user(
 
 @router.post(
     '/token',
-    response_model=schemas_auth.UserAuthData,
+    response_model=schemas_auth.UserResponse,
     responses={
         '401': {
             'description': 'UNAUTHORIZED',
@@ -93,7 +93,7 @@ async def login_user(
 
 @router.get(
     '/refresh',
-    response_model=schemas_auth.UserAuthData,
+    response_model=schemas_auth.UserResponse,
     responses={
         '401': {
             'description': 'Refresh token was expired',

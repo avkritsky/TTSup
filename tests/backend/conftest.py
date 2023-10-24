@@ -33,6 +33,7 @@ async def tables_for_test():
 async def client() -> TestClient:
     async with tables_for_test():
         app.dependency_overrides[database.new_session] = database.test_new_session
+        app.dependency_overrides[database.new_sess_maker] = database.test_new_sess_maker
         client = TestClient(app)
         yield client
 
@@ -43,6 +44,26 @@ async def redis() -> Generator[redis_sess.redis.Redis, None, None]:
         yield con
 
 
+def user_for_test() -> dict:
+    user_dict = {
+        'login': 'user1',
+        'group': 'user',
+        'password': 'password',
+    }
+
+    return user_dict
+
+
+def support_for_test() -> dict:
+    support_dict = {
+        'login': 'support1',
+        'group': 'support',
+        'password': 'password',
+    }
+
+    return support_dict
+
+
 @pytest_asyncio.fixture()
 async def create_test_users() -> tuple:
     if config.IS_PROD is True:
@@ -50,17 +71,9 @@ async def create_test_users() -> tuple:
     async for connection in database.test_new_session():
         connection: AsyncSession
 
-        user_dict = {
-            'login': 'user1',
-            'group': 'user',
-            'password': 'password',
-        }
+        user_dict = user_for_test()
 
-        support_dict = {
-            'login': 'support1',
-            'group': 'support',
-            'password': 'password',
-        }
+        support_dict = support_for_test()
 
         # create USER
         user = User()
@@ -97,3 +110,32 @@ def new_user() -> dict:
     }
     return new_user
 
+
+@pytest.fixture()
+def new_ticket() -> dict:
+    new_ticket = {
+        'text': 'test_password',
+    }
+    return new_ticket
+
+
+@pytest.fixture()
+def user_token() -> str:
+    data = user_for_test()
+    token = security.create_token(
+        login=data['login'],
+        group=data['group'],
+        ttl=60,
+    )
+    return token
+
+
+@pytest.fixture()
+def sup_token() -> str:
+    data = support_for_test()
+    token = security.create_token(
+        login=data['login'],
+        group=data['group'],
+        ttl=60,
+    )
+    return token
