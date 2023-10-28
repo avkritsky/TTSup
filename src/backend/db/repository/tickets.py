@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from src.backend.db.models import Ticket
+from src.backend.db.models import Ticket, User
 
 
 async def create_new_ticket(
@@ -96,3 +96,35 @@ async def get(
         items = [item.ticket_json for item in data.scalars()]
 
     return items
+
+
+async def close(
+        ticket_id: int,
+        user: User,
+        db: async_sessionmaker,
+) -> None:
+    """Close ticket by ID"""
+    async with db() as session:
+        session: AsyncSession
+
+        ticket = await session.execute(
+            select(Ticket).where(Ticket.id == ticket_id)
+        )
+        ticket = ticket.scalar()
+
+        if ticket is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'Ticket with id={ticket_id} not found',
+            )
+
+        if ticket.author_login != user.login and user.group != 'support':
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="You can't close this ticket!",
+            )
+
+        ticket.close()
+
+        await session.commit()
+

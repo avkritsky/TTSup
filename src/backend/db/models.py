@@ -110,6 +110,14 @@ class Ticket(Base):
         }
         return res
 
+    def close(self):
+        self.is_closed = True
+        self.state = 'closed'
+        self._update_time()
+
+    def _update_time(self):
+        self.last_update = datetime.now()
+
 
 class TicketDialog(Base):
     __tablename__ = 'ticket_dialog' if config.IS_PROD else 'ticket_dialog_test'

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.backend.core.security import get_current_user
@@ -70,3 +70,23 @@ async def get_active_tickets(
     return JSONResponse(
         content={'items': items},
     )
+
+
+@router.patch(
+    '/close',
+    responses={
+        '404': {
+            'description': 'Ticket not found!',
+        },
+        '406': {
+            'description': 'Its not your ticket!',
+        },
+    },
+)
+async def get_active_tickets(
+        ticket_id: int,
+        user: User = Depends(get_current_user),
+        db: async_sessionmaker = Depends(database.new_sess_maker),
+):
+    """Get all active tickets"""
+    await tickets.close(ticket_id, user, db)
