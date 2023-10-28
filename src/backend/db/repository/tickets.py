@@ -12,7 +12,7 @@ async def create_new_ticket(
 ) -> dict:
     async with db() as session:
         session: AsyncSession
-        if await check_user_have_a_ticket(login, session):
+        if await _check_user_have_a_ticket(login, session):
             raise HTTPException(
                 status_code=status.HTTP_425_TOO_EARLY,
                 detail=f'User {login} already has active ticket!',
@@ -27,10 +27,10 @@ async def create_new_ticket(
         await session.commit()
         await session.refresh(ticket)
 
-        return ticket.jwt_model
+        return ticket.created_json
 
 
-async def check_user_have_a_ticket(login: str, session: AsyncSession) -> bool:
+async def _check_user_have_a_ticket(login: str, session: AsyncSession) -> bool:
     """Load user from DB by login. Return true if user HAS active ticket"""
     query = select(
         Ticket.id,
@@ -42,3 +42,57 @@ async def check_user_have_a_ticket(login: str, session: AsyncSession) -> bool:
     data = await session.execute(query)
 
     return data.one_or_none() is not None
+
+
+async def get_all(db: async_sessionmaker) -> list[dict]:
+    """Return all active tickets"""
+    query = select(
+        Ticket
+    ).where(
+        Ticket.is_closed == False,
+    ).order_by(
+        Ticket.last_update
+    )
+
+    async with db() as session:
+        session: AsyncSession
+        data = await session.execute(query)
+
+        items = [item.ticket_json for item in data.scalars()]
+
+    return items
+
+
+async def get(
+        ticket_id: int | None,
+        author_login: str | None,
+        db: async_sessionmaker,
+) -> list[dict]:
+    """Return ticket by ID or author"""
+    query = select(
+        Ticket
+    )
+
+    if ticket_id is not None:
+        query.where(
+            Ticket.id == ticket_id,
+        )
+    elif author_login is not None:
+        query.where(
+            Ticket.author_login == author_login,
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail='No input data (ID or Author_login)',
+        )
+
+    query.order_by(Ticket.last_update)
+
+    async with db() as session:
+        session: AsyncSession
+        data = await session.execute(query)
+
+        items = [item.ticket_json for item in data.scalars()]
+
+    return items

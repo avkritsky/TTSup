@@ -91,10 +91,22 @@ class Ticket(Base):
     )
 
     @property
-    def jwt_model(self) -> dict:
+    def created_json(self) -> dict:
         res = {
             'id': self.id,
             'author_login': self.author_login,
+        }
+        return res
+
+    @property
+    def ticket_json(self) -> dict:
+        res = {
+            'id': self.id,
+            'author_login': self.author_login,
+            'text': self.text,
+            'state': self.state,
+            'create_time': self.create_time.isoformat(sep=' '),
+            'last_update': self.last_update.isoformat(sep=' '),
         }
         return res
 
