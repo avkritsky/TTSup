@@ -86,7 +86,7 @@ class DBSession:
         # AsyncElasticsearch for each test execution rather than using a
         # single global instance. Hope this helps!
 
-        maker = async_sessionmaker(bind=engine)
+        maker = async_sessionmaker(bind=engine, expire_on_commit=False)
 
         yield maker
 

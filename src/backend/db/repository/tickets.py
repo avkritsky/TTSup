@@ -11,6 +11,7 @@ async def create_new_ticket(
         db: async_sessionmaker,
 ) -> dict:
     async with db() as session:
+        session: AsyncSession
         if await check_user_have_a_ticket(login, session):
             raise HTTPException(
                 status_code=status.HTTP_425_TOO_EARLY,
@@ -20,7 +21,9 @@ async def create_new_ticket(
         ticket = Ticket()
 
         ticket.text = text
+        ticket.author_login = login
 
+        session.add(ticket)
         await session.commit()
         await session.refresh(ticket)
 
